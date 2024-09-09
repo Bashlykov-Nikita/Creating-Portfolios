@@ -63,13 +63,7 @@ def annualize_rets(r, periods_per_year):
 
 
 # Black-Litterman:
-def as_colvec(x):
-    if x.ndim == 2:
-        return x
-    else:
-        return np.expand_dims(x, axis=1)
-
-
+# To get expected returns without manager views just use implied_returns funtion
 def implied_returns(delta, sigma, w):
     """
     Obtain the implied expected returns by reverse engineering the weights
@@ -82,6 +76,13 @@ def implied_returns(delta, sigma, w):
     ir = delta * sigma.dot(w).squeeze()  # to get a series from a 1-column dataframe
     ir.name = "Implied Returns"
     return ir
+
+
+def as_colvec(x):
+    if x.ndim == 2:
+        return x
+    else:
+        return np.expand_dims(x, axis=1)
 
 
 # Assumes that Omega is proportional to the variance of the prior
