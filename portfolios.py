@@ -52,7 +52,7 @@ def minimize_vol(target_return, er, cov):
 
 
 # computing Maximum Sharpe Ratio Portfolio
-def msr(riskfree_rate, er, cov):
+def msr(cov, er, riskfree_rate=0.03):
     """
     Returns the weights of the portfolio that gives you the maximum sharpe ratio
     given the riskfree rate and expected returns and a covariance matrix
@@ -94,10 +94,84 @@ def gmv(cov):
     return msr(0, np.repeat(1, n), cov)
 
 
-def optimal_weights(n_points, er, cov):
+# computing equally-weighted portfolio
+def weight_ew(r, **kwargs):
     """
-    Returns a list of weights that represent a grid of n_points on the efficient frontier
+    Returns the weights of the EW portfolio based on the asset returns "r" as a DataFrame
+    If supplied a set of capweights and a capweight tether, it is applied and reweighted
     """
-    target_rs = np.linspace(er.min(), er.max(), n_points)
-    weights = [minimize_vol(target_return, er, cov) for target_return in target_rs]
-    return weights
+    n = len(r.columns)
+    ew = pd.Series(1 / n, index=r.columns)
+
+    return ew
+
+
+# computing cap-weighted portfolio
+def weight_cw(r, cap_weights, **kwargs):
+    """
+    Returns the weights of the CW portfolio based on the time series of capweights
+    """
+    w = cap_weights.loc[r.index[1]]
+    return w / w.sum()
+
+
+def risk_contribution(w, cov):
+    """
+    Compute the contributions to risk of the constituents of a portfolio, given a set of portfolio weights and a covariance matrix
+    """
+    total_portfolio_var = portfolio_vol(w, cov) ** 2
+    # Marginal contribution of each constituent
+    marginal_contrib = cov @ w
+    risk_contrib = np.multiply(marginal_contrib, w.T) / total_portfolio_var
+    return risk_contrib
+
+
+def target_risk_contributions(target_risk, cov):
+    """
+    Returns the weights of the portfolio that gives you the weights such
+    that the contributions to portfolio risk are as close as possible to
+    the target_risk, given the covariance matrix
+    """
+    n = cov.shape[0]
+    init_guess = np.repeat(1 / n, n)
+    bounds = ((0.0, 1.0),) * n  # an N-tuple of 2-tuples!
+    # construct the constraints
+    weights_sum_to_1 = {"type": "eq", "fun": lambda weights: np.sum(weights) - 1}
+
+    def msd_risk(weights, cov, target_risk):
+        """
+        Returns the Mean Squared Difference in risk contributions
+        between weights and target_risk
+        """
+        w_contribs = risk_contribution(weights, cov)
+        return ((w_contribs - target_risk) ** 2).sum()
+
+    weights = minimize(
+        msd_risk,
+        init_guess,
+        args=(target_risk, cov),
+        method="SLSQP",
+        options={"disp": False},
+        constraints=(weights_sum_to_1,),
+        bounds=bounds,
+    )
+    return weights.x
+
+
+def equal_risk_contributions(cov):
+    """
+    Returns the weights of the portfolio that equalizes the contributions
+    of the constituents based on the given covariance matrix
+    """
+    n = cov.shape[0]
+    return target_risk_contributions(target_risk=np.repeat(1 / n, n), cov=cov)
+
+
+msr_w = msr(
+    options.sample_cov(data.get_returns_df(data.icr_m["NasdaqComposite"])),
+    options.annualize_rets(data.get_returns_df(data.icr_m["NasdaqComposite"]), 12),
+)
+
+msr_w = pd.DataFrame(msr_w)
+msr_w.index = data.get_returns_df(data.icr_m["NasdaqComposite"]).columns
+msr_w = msr_w.round(3)
