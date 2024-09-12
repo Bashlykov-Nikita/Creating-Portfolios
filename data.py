@@ -37,10 +37,4 @@ def get_mkt_cap(url):
         buff = yf.Ticker(company).info["marketCap"]
         mkt_cap_df.append(buff)
 
-    return pd.DataFrame(mkt_cap_df, index=comp_names, columns=["Market Cap"])
-
-
-def get_cap_weights(market_cap):
-    total_mkt_cap = market_cap.sum(axis=0)
-    cap_weight = market_cap.divide(total_mkt_cap)
-    return cap_weight
+    return pd.DataFrame(mkt_cap_df, index=comp_names)

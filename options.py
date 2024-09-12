@@ -64,7 +64,7 @@ def annualize_rets(r, periods_per_year):
 
 # Black-Litterman:
 # To get expected returns without manager views just use implied_returns funtion
-def implied_returns(delta, sigma, w):
+def implied_returns(sigma, w, delta=2.5):
     """
     Obtain the implied expected returns by reverse engineering the weights
     Inputs:

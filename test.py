@@ -4,11 +4,20 @@ import data as d
 import options as o
 import portfolios as p
 
+
 covariance = ["Sample", "CCM", "Shrinage"]
 
 expacted_return = ["Average", "Implied"]
 
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
+
+r = d.get_returns_df(d.icr_m["NasdaqComposite"])
+cm = d.get_mkt_cap(d.icr_m["NasdaqComposite"])
+cov_arr = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
+er_arr = [
+    o.annualize_rets(r, 12),
+    o.implied_returns(sigma=cov_arr[0], w=p.weight_cw(cm), delta=2.5),
+]
 
 
 def all_msr(cov_arr, er_arr):
@@ -21,20 +30,11 @@ def all_msr(cov_arr, er_arr):
                 f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}",
                 p.msr(cov, er),
             )
-            # all_msr.assign(f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}" = p.msr(cov=cov, er=er))
+    all_msr.Name = "NasdaqComposite"
     return all_msr
 
 
-def weights_csv(index_names):
-    for key in index_names:
-        r = d.get_returns_df(d.icr_m[f"{key}"])
-        cm = d.get_mkt_cap(d.icr_m[f"{key}"])
-        cov = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
-        er = [
-            o.annualize_rets(r, 12),
-            o.implied_returns(sigma=cov[0], w=p.weight_cw(cm), delta=2.5),
-        ]
-        all_msr(cov, er).to_csv(f"{key}_MSR")
+all_msr(cov_arr, er_arr)
 
 
-weights_csv(d.index_names)
+msr_test = pd.read_csv("SP500_MSR", index_col=0)

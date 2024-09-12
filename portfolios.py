@@ -81,7 +81,7 @@ def msr(cov, er, riskfree_rate=0.03):
         constraints=(weights_sum_to_1,),
         bounds=bounds,
     )
-    return weights.x
+    return pd.DataFrame(data=weights.x, index=er.index).round(2)
 
 
 # computing Global Minimum Volatility Portfolio
@@ -91,7 +91,7 @@ def gmv(cov):
     given a covariance matrix
     """
     n = cov.shape[0]
-    return msr(0, np.repeat(1, n), cov)
+    return msr(cov, pd.DataFrame(data=np.repeat(1, n), index=cov.columns), 0)
 
 
 # computing equally-weighted portfolio
@@ -101,18 +101,16 @@ def weight_ew(r, **kwargs):
     If supplied a set of capweights and a capweight tether, it is applied and reweighted
     """
     n = len(r.columns)
-    ew = pd.Series(1 / n, index=r.columns)
+    ew = pd.DataFrame(data=np.repeat(1 / n, n), index=r.columns)
 
     return ew
 
 
 # computing cap-weighted portfolio
-def weight_cw(r, cap_weights, **kwargs):
-    """
-    Returns the weights of the CW portfolio based on the time series of capweights
-    """
-    w = cap_weights.loc[r.index[1]]
-    return w / w.sum()
+def weight_cw(market_cap):
+    total_mkt_cap = market_cap.sum(axis=0)
+    cap_weight = market_cap.divide(total_mkt_cap)
+    return cap_weight
 
 
 def risk_contribution(w, cov):
@@ -164,14 +162,14 @@ def equal_risk_contributions(cov):
     of the constituents based on the given covariance matrix
     """
     n = cov.shape[0]
-    return target_risk_contributions(target_risk=np.repeat(1 / n, n), cov=cov)
+    return pd.DataFrame(
+        data=target_risk_contributions(target_risk=np.repeat(1 / n, n), cov=cov),
+        index=cov.columns,
+    )
 
 
-msr_w = msr(
-    options.sample_cov(data.get_returns_df(data.icr_m["NasdaqComposite"])),
-    options.annualize_rets(data.get_returns_df(data.icr_m["NasdaqComposite"]), 12),
+weight_ew(data.get_returns_df(data.icr_m["NasdaqComposite"]))
+weight_cw(data.get_mkt_cap(data.icr_m["NasdaqComposite"]))
+equal_risk_contributions(
+    options.cc_cov(data.get_returns_df(data.icr_m["NasdaqComposite"]))
 )
-
-msr_w = pd.DataFrame(msr_w)
-msr_w.index = data.get_returns_df(data.icr_m["NasdaqComposite"]).columns
-msr_w = msr_w.round(3)
