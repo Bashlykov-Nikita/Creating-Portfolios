@@ -170,6 +170,6 @@ def equal_risk_contributions(cov):
 
 weight_ew(data.get_returns_df(data.icr_m["NasdaqComposite"]))
 weight_cw(data.get_mkt_cap(data.icr_m["NasdaqComposite"]))
-equal_risk_contributions(
-    options.cc_cov(data.get_returns_df(data.icr_m["NasdaqComposite"]))
-)
+# equal_risk_contributions(
+#     options.cc_cov(data.get_returns_df(data.icr_m["NasdaqComposite"]))
+# )

@@ -21,8 +21,15 @@ def all_msr(cov_arr, er_arr):
                 f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}",
                 p.msr(cov, er),
             )
-            # all_msr.assign(f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}" = p.msr(cov=cov, er=er))
     return all_msr
+
+
+def all_gmv(cov_arr):
+    all_gmv = pd.DataFrame()
+    for i, cov in enumerate(cov_arr):
+        print(f"{portfolios[1]}_{covariance[i]}")
+        all_gmv.insert(i, f"{portfolios[1]}_{covariance[i]}", p.gmv(cov))
+    return all_gmv
 
 
 def weights_csv(index_names):
