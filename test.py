@@ -7,7 +7,7 @@ import portfolios as p
 
 covariance = ["Sample", "CCM", "Shrinage"]
 
-expacted_return = ["Average", "Implied"]
+expected_return = ["Average", "Implied"]
 
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
 
@@ -24,17 +24,53 @@ def all_msr(cov_arr, er_arr):
     all_msr = pd.DataFrame()
     for i, cov in enumerate(cov_arr):
         for j, er in enumerate(er_arr):
-            print(f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}")
-            all_msr.insert(
-                i + j,
-                f"{portfolios[0]}_{covariance[i]}_{expacted_return[j]}",
-                p.msr(cov, er),
+            print(f"{portfolios[0]}_{covariance[i]}_{expected_return[j]}")
+            all_msr[f"{portfolios[0]}_{covariance[i]}_{expected_return[j]}"] = p.msr(
+                cov, er
             )
-    all_msr.Name = "NasdaqComposite"
     return all_msr
 
 
-all_msr(cov_arr, er_arr)
+def all_gmv(cov_arr):
+    all_gmv = pd.DataFrame()
+    for i, cov in enumerate(cov_arr):
+        print(f"{portfolios[1]}_{covariance[i]}")
+        all_gmv.insert(i, f"{portfolios[1]}_{covariance[i]}", p.gmv(cov))
+    return all_gmv
 
 
-msr_test = pd.read_csv("SP500_MSR", index_col=0)
+def all_ew(r):
+    all_ew = pd.DataFrame()
+    print(f"{portfolios[2]}")
+    all_ew.loc[:, f"{portfolios[2]}"] = p.weight_ew(r)
+    return all_ew
+
+
+def all_cw(mct_cap):
+    all_cw = pd.DataFrame()
+    print(f"{portfolios[3]}")
+    all_cw.loc[:, f"{portfolios[3]}"] = p.weight_cw(mct_cap)
+    return all_cw
+
+
+def all_erc(cov_arr):
+    all_erc = pd.DataFrame()
+    for i, cov in enumerate(cov_arr):
+        print(f"{portfolios[4]}_{covariance[i]}")
+        all_erc.insert(
+            i, f"{portfolios[4]}_{covariance[i]}", p.equal_risk_contributions(cov)
+        )
+    return all_erc
+
+
+nasdaq_portfolios = pd.DataFrame()
+nasdaq_portfolios = pd.concat(
+    [
+        all_msr(cov_arr, er_arr),
+        all_gmv(cov_arr),
+        all_ew(r),
+        all_cw(cm),
+        all_erc(cov_arr),
+    ],
+    axis=1,
+)

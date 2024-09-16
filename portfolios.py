@@ -81,7 +81,7 @@ def msr(cov, er, riskfree_rate=0.03):
         constraints=(weights_sum_to_1,),
         bounds=bounds,
     )
-    return pd.DataFrame(data=weights.x, index=er.index).round(2)
+    return pd.DataFrame(data=weights.x, index=er.index).round(3)
 
 
 # computing Global Minimum Volatility Portfolio
@@ -98,10 +98,9 @@ def gmv(cov):
 def weight_ew(r, **kwargs):
     """
     Returns the weights of the EW portfolio based on the asset returns "r" as a DataFrame
-    If supplied a set of capweights and a capweight tether, it is applied and reweighted
     """
     n = len(r.columns)
-    ew = pd.DataFrame(data=np.repeat(1 / n, n), index=r.columns)
+    ew = pd.DataFrame(data=np.repeat(1 / n, n), index=r.columns).round(3)
 
     return ew
 
@@ -109,7 +108,7 @@ def weight_ew(r, **kwargs):
 # computing cap-weighted portfolio
 def weight_cw(market_cap):
     total_mkt_cap = market_cap.sum(axis=0)
-    cap_weight = market_cap.divide(total_mkt_cap)
+    cap_weight = market_cap.divide(total_mkt_cap).round(3)
     return cap_weight
 
 
@@ -136,7 +135,7 @@ def target_risk_contributions(target_risk, cov):
     # construct the constraints
     weights_sum_to_1 = {"type": "eq", "fun": lambda weights: np.sum(weights) - 1}
 
-    def msd_risk(weights, cov, target_risk):
+    def msd_risk(weights, target_risk, cov):
         """
         Returns the Mean Squared Difference in risk contributions
         between weights and target_risk
@@ -164,12 +163,5 @@ def equal_risk_contributions(cov):
     n = cov.shape[0]
     return pd.DataFrame(
         data=target_risk_contributions(target_risk=np.repeat(1 / n, n), cov=cov),
-        index=cov.columns,
-    )
-
-
-weight_ew(data.get_returns_df(data.icr_m["NasdaqComposite"]))
-weight_cw(data.get_mkt_cap(data.icr_m["NasdaqComposite"]))
-# equal_risk_contributions(
-#     options.cc_cov(data.get_returns_df(data.icr_m["NasdaqComposite"]))
-# )
+        index=cov.index,
+    ).round(3)
