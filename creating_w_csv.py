@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import numpy as np
 import data as d
@@ -82,6 +83,15 @@ def all_cw(mct_cap):
 
 
 def all_erc(cov_arr):
+    """
+    Calculates the Equal Risk Contributions (ERC) for all portfolios based on the given covariance matrices.
+
+    Args:
+        cov_arr (list): List of covariance matrices for each portfolio.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the ERC weights for all portfolios.
+    """
     all_erc = pd.DataFrame()
     for i, cov in enumerate(cov_arr):
         print(f"{portfolios[4]}_{covariance[i]}")
@@ -89,10 +99,30 @@ def all_erc(cov_arr):
     return all_erc
 
 
+logger = logging.getLogger(__name__)
+
+
 def weights_csv(index_names):
+    """
+    Generates csv files for all portfolios based on index names with added logging and error handling.
+
+    Args:
+        index_names (dict): A dictionary containing index names as keys.
+    """
     for key in index_names:
-        r = d.get_returns_df(d.icr_m[f"{key}"])
-        cm = d.get_mkt_cap(d.icr_m[f"{key}"])
+        logger.info(f"Processing index: {key}")
+        try:
+            r = d.get_returns_df(d.icr_m[f"{key}"])
+        except Exception as e:
+            logger.error(f"Error fetching returns data for {key}: {e}")
+            continue
+
+        try:
+            cm = d.get_mkt_cap(d.icr_m[f"{key}"])
+        except Exception as e:
+            logger.error(f"Error fetching market cap data for {key}: {e}")
+            continue
+
         cov = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
         er = [
             o.annualize_rets(r, 12),

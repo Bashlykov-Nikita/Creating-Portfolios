@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import data
 
 
 def annualize_vol(r, periods_per_year):
