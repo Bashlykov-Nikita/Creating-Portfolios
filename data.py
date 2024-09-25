@@ -1,6 +1,8 @@
 import pandas as pd
 import yfinance as yf
 
+# * File with constants and get functions
+
 index_names = [
     "SP500",
     "Nasdaq100",

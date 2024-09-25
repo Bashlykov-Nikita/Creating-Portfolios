@@ -30,7 +30,7 @@ def mean_rets(returns_df):
 
 
 # Example usage
-returns_df = d.get_returns_df(d.icr_m["HSI"])
+returns_df = d.get_returns_df(d.icr_m["DAX"])
 
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
 covariance = ["Sample", "CCM", "Shrinage"]
@@ -79,22 +79,37 @@ def backtest_ws(r, estimation_window=12):
         (start, start + estimation_window)
         for start in range(n_periods - estimation_window)
     ]
-    msr_weight_bt = pd.concat(
-        [
-            all_msr(
-                cov_arr(r.iloc[win[0] : win[1]]),
-                er_arr(r.iloc[win[0] : win[1]]),
-            )
-            for win in windows
-        ]
-    )
-    # weights = pd.DataFrame(
-    #     msr_weight_bt, index=r.iloc[estimation_window:].index, columns=r.columns
-    # )
-    # returns = (weights * r).sum(
-    #     axis="columns", min_count=1
-    # )  # mincount is to generate NAs if all inputs are NAs
-    return msr_weight_bt
+    msr_weight_bt = [
+        p.msr(
+            o.cc_cov(r.iloc[win[0] : win[1]]),
+            o.annualize_rets(r.iloc[win[0] : win[1]], 12),
+        )
+        for win in windows
+    ]
+
+    weights = pd.concat(msr_weight_bt, axis=1).T
+    weights.index = r.iloc[estimation_window:].index
+    returns = (weights * r).sum(
+        axis="columns", min_count=1
+    )  # mincount is to generate NAs if all inputs are NAs
+    return returns
 
 
-backtest_ws(returns_df)
+test = backtest_ws(returns_df)
+
+
+test3 = backtest_ws(returns_df)
+test4 = pd.concat(test3, axis=1).T
+test4 = pd.DataFrame(test4).T
+test4.index = returns_df.iloc[12:].index
+
+
+test1 = pd.concat(test)
+
+test2 = test1["MSR_Sample_Average"]
+weights = pd.DataFrame(
+    test2, index=returns_df.iloc[12:].index, columns=returns_df.columns
+)
+returns = (weights * returns_df).sum(
+    axis="columns", min_count=1
+)  # mincount is to generate NAs if all inputs are NAs
