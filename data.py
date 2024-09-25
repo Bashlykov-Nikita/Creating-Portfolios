@@ -12,12 +12,15 @@ index_names = [
     "Nikkei225",
 ]
 
+
+# ? Dict with index names as keys and components reterns urls as values
+# ? Daily
 icr_d = {
     name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/data/{name}_d.csv?raw=true"
     for name in index_names
 }
 
-
+# ? Monthly
 icr_m = {
     name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/data/{name}_m.csv?raw=true"
     for name in index_names
@@ -25,6 +28,14 @@ icr_m = {
 
 
 def get_returns_df(url: str) -> pd.DataFrame:
+    """Reads a CSV file from the specified URL and returns a DataFrame.
+
+    Args:
+        url (str): The URL of the CSV file to read.
+
+    Returns:
+        pd.DataFrame: A pandas DataFrame containing the data from the CSV file.
+    """
     return pd.read_csv(url, index_col=0)
 
 

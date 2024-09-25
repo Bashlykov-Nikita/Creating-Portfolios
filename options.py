@@ -1,8 +1,12 @@
+import sys
+
+sys.dont_write_bytecode = True
+
 import numpy as np
 import pandas as pd
 
 
-def annualize_vol(r, periods_per_year):
+def annualize_vol(r: pd.DataFrame, periods_per_year: int):
     """
     Annualizes the vol of a set of returns
     """
@@ -14,7 +18,7 @@ covariance = ["Sample", "CCM", "Shrinage"]
 # Rolling Window,
 # Exponentialy Weighted Moving Avarage,
 # Black-Litterman Model
-expacted_return = ["Average", "RW", "EWMA", "BLM"]
+expacted_return = ["Average", "EW", "BLM"]
 
 
 def sample_cov(r, **kwargs):
@@ -56,9 +60,22 @@ def annualize_rets(r, periods_per_year):
     return compounded_growth ** (periods_per_year / n_periods) - 1
 
 
-# TODO:
-# def RW()
-# def EWRA()
+def ew_annualized_return(returns_df, span=12):
+    """Calculates exponentially weighted annualized return.
+
+    Args:
+        returns_df: DataFrame of historical asset returns.
+        span: Span parameter for the exponential weighting.
+        freq: Frequency of the data (e.g., 'M' for monthly, 'D' for daily).
+
+    Returns:
+        Float representing the exponentially weighted expected return.
+    """
+
+    ew_returns = returns_df.ewm(span=span).mean()
+    compounded_growth = (1 + ew_returns).prod()
+    n_periods = ew_returns.shape[0]
+    return compounded_growth ** (span / n_periods) - 1
 
 
 # Black-Litterman:

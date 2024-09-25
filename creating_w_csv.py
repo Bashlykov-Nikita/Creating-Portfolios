@@ -1,3 +1,7 @@
+import sys
+
+sys.dont_write_bytecode = True
+
 import logging
 import pandas as pd
 import numpy as np
@@ -12,7 +16,7 @@ expected_return = ["Average", "Implied"]
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
 
 
-def all_msr(cov_arr, er_arr):
+def all_msr(cov_arr: list, er_arr: list) -> pd.DataFrame:
     """
     Calculates the maximum sharpe ratio for all combinations of covariance matrices and expected returns.
 
@@ -33,7 +37,7 @@ def all_msr(cov_arr, er_arr):
     return all_msr
 
 
-def all_gmv(cov_arr):
+def all_gmv(cov_arr: list) -> pd.DataFrame:
     """
     Calculate the Global Minimum Volatility (GMV) portfolio weights for each covariance matrix in the array.
 
@@ -50,7 +54,7 @@ def all_gmv(cov_arr):
     return all_gmv
 
 
-def all_ew(r):
+def all_ew(r: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate the EW portfolio for all assets based on the asset returns "r".
 
@@ -66,7 +70,7 @@ def all_ew(r):
     return all_ew
 
 
-def all_cw(mct_cap):
+def all_cw(mct_cap: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate the cap weight portfolio.
 
@@ -82,7 +86,7 @@ def all_cw(mct_cap):
     return all_cw
 
 
-def all_erc(cov_arr):
+def all_erc(cov_arr: list) -> pd.DataFrame:
     """
     Calculates the Equal Risk Contributions (ERC) for all portfolios based on the given covariance matrices.
 
@@ -102,7 +106,7 @@ def all_erc(cov_arr):
 logger = logging.getLogger(__name__)
 
 
-def weights_csv(index_names):
+def weights_csv(index_names: list) -> None:
     """
     Generates csv files for all portfolios based on index names with added logging and error handling.
 
@@ -126,6 +130,7 @@ def weights_csv(index_names):
         cov = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
         er = [
             o.annualize_rets(r, 12),
+            o.ew_annualized_return(r, 12),
             o.implied_returns(sigma=cov[0], w=p.weight_cw(cm), delta=2.5),
         ]
         pd.concat(
