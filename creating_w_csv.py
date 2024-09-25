@@ -107,7 +107,7 @@ def weights_csv(index_names):
     Generates csv files for all portfolios based on index names with added logging and error handling.
 
     Args:
-        index_names (dict): A dictionary containing index names as keys.
+        index_names (list): A list containing index names as str.
     """
     for key in index_names:
         logger.info(f"Processing index: {key}")
@@ -137,7 +137,7 @@ def weights_csv(index_names):
                 all_erc(cov),
             ],
             axis=1,
-        ).to_csv(f"{key}_portfolios", index=True)
+        ).to_csv(f"portfolios_data/{key}_portfolios", index=True)
 
 
 weights_csv(d.index_names)

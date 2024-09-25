@@ -1,28 +1,26 @@
 import pandas as pd
 import yfinance as yf
 
-index_names = {
-    "SP500": "^GSPC",
-    "NasdaqComposite": "^IXIC",
-    "DowJones": "^DJI",
-    "FTSE100": "^FTSE",
-    "DAX": "^GDAXI",
-    "HSI": "^HSI",
-    # Not added yet:
-    # "^RUT": "Russell2000",
-    # "^FCHI": "CAC40",
-    # "^N225": "Nikkei225",
-}
+index_names = [
+    "SP500",
+    "Nasdaq100",
+    "DowJones",
+    "CAC40",
+    "FTSE100",
+    "DAX",
+    "HSI",
+    "Nikkei225",
+]
 
 icr_d = {
-    name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/{name}_d.csv?raw=true"
-    for name in index_names.keys()
+    name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/data/{name}_d.csv?raw=true"
+    for name in index_names
 }
 
 
 icr_m = {
-    name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/{name}_m.csv?raw=true"
-    for name in index_names.keys()
+    name: f"https://github.com/Bashlykov-Nikita/Companies-Returns/blob/main/data/{name}_m.csv?raw=true"
+    for name in index_names
 }
 
 
