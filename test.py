@@ -6,29 +6,6 @@ import options as o
 import data as d
 import portfolios as p
 
-
-def ew_expected_return(returns_df, span=12):
-    """Calculates exponentially weighted expected return.
-
-    Args:
-        returns_df: DataFrame of historical asset returns.
-        span: Span parameter for the exponential weighting.
-        freq: Frequency of the data (e.g., 'M' for monthly, 'D' for daily).
-
-    Returns:
-        Float representing the exponentially weighted expected return.
-    """
-
-    ew_returns = returns_df.ewm(span=span).mean()
-    compounded_growth = (1 + ew_returns).prod()
-    n_periods = ew_returns.shape[0]
-    return compounded_growth ** (span / n_periods) - 1
-
-
-def mean_rets(returns_df):
-    return returns_df.mean()
-
-
 # Example usage
 returns_df = d.get_returns_df(d.icr_m["DAX"])
 
@@ -80,49 +57,20 @@ def backtest_ws(r, estimation_window=12):
         for start in range(n_periods - estimation_window)
     ]
     msr_weight_bt = [
-        # p.msr(
-        #     o.cc_cov(r.iloc[win[0] : win[1]]),
-        #     o.annualize_rets(r.iloc[win[0] : win[1]], 12),
-        # )
         all_msr(cov_arr(r.iloc[win[0] : win[1]]), er_arr(r.iloc[win[0] : win[1]]))
         for win in windows
     ]
 
-    # weights = pd.concat(msr_weight_bt, axis=1).T
-    # weights.index = r.iloc[estimation_window:].index
-    # returns = (weights * r).sum(
-    #     axis="columns", min_count=1
-    # )  # mincount is to generate NAs if all inputs are NAs
     apply_weights = []
-    for df in msr_weight_bt:
-        for i in r.index[estimation_window:]:
-            apply_weights.append(
-                df.apply(lambda x: x * r.iloc[i], axis=0).sum(axis="rows")
+    for i, df in enumerate(msr_weight_bt):
+        apply_weights.append(
+            df.apply(lambda x: x * r.iloc[i + estimation_window], axis=0).sum(
+                axis="rows"
             )
-
-    return apply_weights
+        )
+    returns = pd.concat(apply_weights, axis=1).T
+    returns.index = r.index[estimation_window:]
+    return returns
 
 
 test = backtest_ws(returns_df)
-test2 = test[0].T
-test2.loc["MSR_Sample_Average"]
-len(test)
-
-test1 = pd.concat(test, axis=0)
-test3 = test1.T
-returns_df
-
-
-test5 = test[3]
-
-
-def multipying_by_rows(row, row1):
-    return row * row1
-
-
-returns_df.index[12:]
-
-test6 = test5.apply(multipying_by_rows, axis=0, args=(returns_df.iloc[13],)).sum(
-    axis="rows"
-)
-test7 = test5.apply(lambda x: x * returns_df.iloc[14], axis=0).sum(axis="rows")
