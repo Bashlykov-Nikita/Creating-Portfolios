@@ -80,36 +80,49 @@ def backtest_ws(r, estimation_window=12):
         for start in range(n_periods - estimation_window)
     ]
     msr_weight_bt = [
-        p.msr(
-            o.cc_cov(r.iloc[win[0] : win[1]]),
-            o.annualize_rets(r.iloc[win[0] : win[1]], 12),
-        )
+        # p.msr(
+        #     o.cc_cov(r.iloc[win[0] : win[1]]),
+        #     o.annualize_rets(r.iloc[win[0] : win[1]], 12),
+        # )
+        all_msr(cov_arr(r.iloc[win[0] : win[1]]), er_arr(r.iloc[win[0] : win[1]]))
         for win in windows
     ]
 
-    weights = pd.concat(msr_weight_bt, axis=1).T
-    weights.index = r.iloc[estimation_window:].index
-    returns = (weights * r).sum(
-        axis="columns", min_count=1
-    )  # mincount is to generate NAs if all inputs are NAs
-    return returns
+    # weights = pd.concat(msr_weight_bt, axis=1).T
+    # weights.index = r.iloc[estimation_window:].index
+    # returns = (weights * r).sum(
+    #     axis="columns", min_count=1
+    # )  # mincount is to generate NAs if all inputs are NAs
+    apply_weights = []
+    for df in msr_weight_bt:
+        for i in r.index[estimation_window:]:
+            apply_weights.append(
+                df.apply(lambda x: x * r.iloc[i], axis=0).sum(axis="rows")
+            )
+
+    return apply_weights
 
 
 test = backtest_ws(returns_df)
+test2 = test[0].T
+test2.loc["MSR_Sample_Average"]
+len(test)
+
+test1 = pd.concat(test, axis=0)
+test3 = test1.T
+returns_df
 
 
-test3 = backtest_ws(returns_df)
-test4 = pd.concat(test3, axis=1).T
-test4 = pd.DataFrame(test4).T
-test4.index = returns_df.iloc[12:].index
+test5 = test[3]
 
 
-test1 = pd.concat(test)
+def multipying_by_rows(row, row1):
+    return row * row1
 
-test2 = test1["MSR_Sample_Average"]
-weights = pd.DataFrame(
-    test2, index=returns_df.iloc[12:].index, columns=returns_df.columns
+
+returns_df.index[12:]
+
+test6 = test5.apply(multipying_by_rows, axis=0, args=(returns_df.iloc[13],)).sum(
+    axis="rows"
 )
-returns = (weights * returns_df).sum(
-    axis="columns", min_count=1
-)  # mincount is to generate NAs if all inputs are NAs
+test7 = test5.apply(lambda x: x * returns_df.iloc[14], axis=0).sum(axis="rows")
