@@ -11,7 +11,7 @@ import portfolios as p
 
 covariance = ["Sample", "CCM", "Shrinage"]
 
-expected_return = ["Average", "Implied"]
+expected_return = ["Average", "EWA"]
 
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
 
@@ -103,7 +103,58 @@ def all_erc(cov_arr: list) -> pd.DataFrame:
     return all_erc
 
 
+def cov_arr(r):
+    cov = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
+    return cov
+
+
+def er_arr(r):
+    er = [
+        o.annualize_rets(r, 12),
+        o.ew_annualized_return(r, 12),
+        # o.implied_returns(sigma=cov[0], w=p.weight_cw(mc), delta=2.5),
+    ]
+    return er
+
+
 logger = logging.getLogger(__name__)
+
+
+def backtest_ws(r, estimation_window=12):
+    """
+    Backtests the weighted strategies based on the given asset returns.
+
+    Args:
+        r (DataFrame): DataFrame containing asset returns.
+        estimation_window (int, optional): Number of periods to consider for estimation. Defaults to 12.
+
+    Returns:
+        DataFrame: DataFrame with the backtested returns for the weighted strategies.
+    """
+    n_periods = r.shape[0]
+    # return windows
+    windows = [
+        (start, start + estimation_window)
+        for start in range(n_periods - estimation_window)
+    ]
+    weight_bt = []
+    for win in windows:
+        cov = cov_arr(r.iloc[win[0] : win[1]])
+        er = er_arr(r.iloc[win[0] : win[1]])
+        weight_bt.append(
+            pd.concat([all_msr(cov, er), all_gmv(cov), all_ew(r), all_erc(cov)])
+        )
+
+    apply_weights = []
+    for i, df in enumerate(weight_bt):
+        apply_weights.append(
+            df.apply(lambda x: x * r.iloc[i + estimation_window], axis=0).sum(
+                axis="rows"
+            )
+        )
+    returns = pd.concat(apply_weights, axis=1).T
+    returns.index = r.index[estimation_window:]
+    return returns
 
 
 def weights_csv(index_names: list) -> None:
@@ -122,27 +173,27 @@ def weights_csv(index_names: list) -> None:
             continue
 
         try:
-            cm = d.get_mkt_cap(d.icr_m[f"{key}"])
+            mc = d.get_mkt_cap(d.icr_m[f"{key}"])
         except Exception as e:
             logger.error(f"Error fetching market cap data for {key}: {e}")
             continue
 
-        cov = [o.sample_cov(r), o.cc_cov(r), o.shrinkage_cov(r)]
-        er = [
-            o.annualize_rets(r, 12),
-            o.ew_annualized_return(r, 12),
-            o.implied_returns(sigma=cov[0], w=p.weight_cw(cm), delta=2.5),
-        ]
+        cov = cov_arr(r)
+        er = er_arr(r)
         pd.concat(
             [
                 all_msr(cov, er),
                 all_gmv(cov),
                 all_ew(r),
-                all_cw(cm),
+                all_cw(mc),
                 all_erc(cov),
             ],
             axis=1,
         ).to_csv(f"portfolios_data/{key}_portfolios", index=True)
+        print(f"backtest_portfolios_data {key}")
+        backtest_ws(r).to_csv(
+            f"backtest_portfolios_data/{key}_backtest_portfolios", index=True
+        )
 
 
 weights_csv(d.index_names)

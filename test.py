@@ -1,3 +1,4 @@
+import numpy as np
 import sys
 
 sys.dont_write_bytecode = True
@@ -23,16 +24,30 @@ def all_msr(cov_arr, er_arr):
         er_arr (array-like): Array of expected returns
 
     Returns:
-        pandas.DataFrame: DataFrame containing the maximum sharpe ratio for each combination
+        numpy.ndarray: Array containing the maximum sharpe ratio for each combination
     """
-    all_msr = pd.DataFrame()
+    all_msr = np.empty((len(cov_arr), len(er_arr)))
     for i, cov in enumerate(cov_arr):
         for j, er in enumerate(er_arr):
-            print(f"{portfolios[0]}_{covariance[i]}_{expected_return[j]}")
-            all_msr[f"{portfolios[0]}_{covariance[i]}_{expected_return[j]}"] = p.msr(
-                cov, er
-            )
+            all_msr[i, j] = p.msr(cov, er)
     return all_msr
+
+
+def all_gmv(cov_arr: list) -> pd.DataFrame:
+    """
+    Calculate the Global Minimum Volatility (GMV) portfolio weights for each covariance matrix in the array.
+
+    Args:
+        cov_arr (list): List of covariance matrices for which to calculate GMV portfolio weights.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing GMV portfolio weights for each covariance matrix.
+    """
+    all_gmv = pd.DataFrame()
+    for i, cov in enumerate(cov_arr):
+        print(f"{portfolios[1]}_{covariance[i]}")
+        all_gmv[f"{portfolios[1]}_{covariance[i]}"] = p.gmv(cov)
+    return all_gmv
 
 
 def cov_arr(r):
@@ -56,13 +71,14 @@ def backtest_ws(r, estimation_window=12):
         (start, start + estimation_window)
         for start in range(n_periods - estimation_window)
     ]
-    msr_weight_bt = [
-        all_msr(cov_arr(r.iloc[win[0] : win[1]]), er_arr(r.iloc[win[0] : win[1]]))
-        for win in windows
-    ]
+    weight_bt = []
+    for win in windows:
+        cov = cov_arr(r.iloc[win[0] : win[1]])
+        er = er_arr(r.iloc[win[0] : win[1]])
+        weight_bt.append(pd.concat([all_msr(cov, er), all_gmv(cov)]))
 
     apply_weights = []
-    for i, df in enumerate(msr_weight_bt):
+    for i, df in enumerate(weight_bt):
         apply_weights.append(
             df.apply(lambda x: x * r.iloc[i + estimation_window], axis=0).sum(
                 axis="rows"
