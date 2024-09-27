@@ -90,3 +90,7 @@ def backtest_ws(r, estimation_window=12):
 
 
 test = backtest_ws(returns_df)
+
+returns_df["2019":]
+
+test1 = pd.read_csv("backtest_portfolios_data/DAX_backtest_portfolios.csv")

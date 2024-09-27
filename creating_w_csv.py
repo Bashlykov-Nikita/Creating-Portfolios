@@ -191,7 +191,7 @@ def weights_csv(index_names: list) -> None:
             axis=1,
         ).to_csv(f"portfolios_data/{key}_portfolios", index=True)
         print(f"backtest_portfolios_data {key}")
-        backtest_ws(r).to_csv(
+        backtest_ws(r["2019":]).to_csv(
             f"backtest_portfolios_data/{key}_backtest_portfolios", index=True
         )
 
