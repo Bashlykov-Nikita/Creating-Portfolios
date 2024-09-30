@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
+# * File with calculating portfolios weights
+
 
 # functions for computing portfolio stats
 def portfolio_return(weights, returns):

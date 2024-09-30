@@ -1,0 +1,26 @@
+name: Update monthly
+
+on:
+  schedule:
+    - cron: "0 13 1 * *"  # Run every month
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run Python Script
+        run: |
+          python ./creating_w_csv.py
+      - name: Set Git Config
+        run: |          
+          git config --global user.email "bashlykovnikita@gmail.com"
+          git config --global user.name "Bashlykov Nikita"
+      - name: Commit Changes
+        run: |
+          git add .
+          git commit -m "Updated data"
+          git push origin main

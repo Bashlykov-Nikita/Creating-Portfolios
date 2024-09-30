@@ -5,20 +5,14 @@ sys.dont_write_bytecode = True
 import numpy as np
 import pandas as pd
 
+# * File with calculating options for covariance and expected return
+
 
 def annualize_vol(r: pd.DataFrame, periods_per_year: int):
     """
     Annualizes the vol of a set of returns
     """
     return r.std() * (periods_per_year**0.5)
-
-
-# Constant-Correlation Model (Elton-Gruber)
-covariance = ["Sample", "CCM", "Shrinage"]
-# Rolling Window,
-# Exponentialy Weighted Moving Avarage,
-# Black-Litterman Model
-expacted_return = ["Average", "EW", "BLM"]
 
 
 def sample_cov(r, **kwargs):

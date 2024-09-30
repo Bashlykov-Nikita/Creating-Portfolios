@@ -2,18 +2,22 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import logging
+# import logging
 import pandas as pd
 import numpy as np
 import data as d
 import options as o
 import portfolios as p
 
+# * File for creating .csv files with portfolios weights and backtest
+
 covariance = ["Sample", "CCM", "Shrinage"]
 
 expected_return = ["Average", "EWA"]
 
 portfolios = ["MSR", "GMV", "EW", "CW", "ERC"]
+
+start_backtest = "2019"
 
 
 def all_msr(cov_arr: list, er_arr: list) -> pd.DataFrame:
@@ -117,7 +121,7 @@ def er_arr(r):
     return er
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 def backtest_ws(r, estimation_window=12):
@@ -165,17 +169,17 @@ def weights_csv(index_names: list) -> None:
         index_names (list): A list containing index names as str.
     """
     for key in index_names:
-        logger.info(f"Processing index: {key}")
+        # logger.info(f"Processing index: {key}")
         try:
             r = d.get_returns_df(d.icr_m[f"{key}"])
         except Exception as e:
-            logger.error(f"Error fetching returns data for {key}: {e}")
+            # logger.error(f"Error fetching returns data for {key}: {e}")
             continue
 
         try:
             mc = d.get_mkt_cap(d.icr_m[f"{key}"])
         except Exception as e:
-            logger.error(f"Error fetching market cap data for {key}: {e}")
+            # logger.error(f"Error fetching market cap data for {key}: {e}")
             continue
 
         cov = cov_arr(r)
@@ -189,10 +193,10 @@ def weights_csv(index_names: list) -> None:
                 all_erc(cov),
             ],
             axis=1,
-        ).to_csv(f"portfolios_data/{key}_portfolios", index=True)
+        ).to_csv(f"portfolios_data/{key}_portfolios.csv", index=True)
         print(f"backtest_portfolios_data {key}")
-        backtest_ws(r["2019":]).to_csv(
-            f"backtest_portfolios_data/{key}_backtest_portfolios", index=True
+        backtest_ws(r[start_backtest:]).to_csv(
+            f"backtest_portfolios_data/{key}_backtest_portfolios.csv", index=True
         )
 
 
