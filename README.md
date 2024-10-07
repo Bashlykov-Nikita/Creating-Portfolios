@@ -25,3 +25,12 @@ In this project, historical data from companies included in well-known indices i
     
 3) Generates .csv files with backtesting of all portfolios on historical data using a rolling window.
 4) (In the works) [Black-Litterman Model](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1117574)
+5) Updates .csv files every month using GitHub Actions.
+
+### How it works:
+- **data.py**: This file contains constants in the form of dictionaries (index name: link to company returns), as well as get functions.
+- **options.py**: Contains functions for calculating the covariance matrix and expected return, as well as the Black-Litterman model.
+- **portfolios.py**: This file contains the necessary functions for calculating various portfolios.
+- **creating_w_csv.py**: The main file that uses the functionality of all the previous ones. Creates .csv files for weights in various portfolios, and also tests them on historical data.
+- **portfolios_data**: This is a folder containing .csv files for each index. These .csv files contain all the created portfolios (the weights of the companies within them).
+- **backtest_portfolios_data**: This is a folder containing .csv files for each index. These .csv files contain the profitability of the portfolios when backtested on historical data.
