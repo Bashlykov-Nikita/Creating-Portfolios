@@ -34,3 +34,22 @@ In this project, historical data from companies included in well-known indices i
 - **creating_w_csv.py**: The main file that uses the functionality of all the previous ones. Creates .csv files for weights in various portfolios, and also tests them on historical data.
 - **portfolios_data**: This is a folder containing .csv files for each index. These .csv files contain all the created portfolios (the weights of the companies within them).
 - **backtest_portfolios_data**: This is a folder containing .csv files for each index. These .csv files contain the profitability of the portfolios when backtested on historical data.
+
+### How to use:
+To Fetch the .csv files use:
+```sh
+portfolios_w_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/portfolios_data/${file_name}.csv?raw=true"
+backtest_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/backtest_portfolios_data/${file_name}?raw=true"
+```
+### Example:
+```python
+import pandas as pd
+test_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/backtest_portfolios_data/DAX_backtest_portfolios.csv?raw=true"
+df = pd.read_csv(test_url, index_col=0)
+```
+
+### Data Sources:
+- [Companies Returns](https://github.com/Bashlykov-Nikita/Companies-Returns)
+
+### Author:
+[Nikita Bashlykov](https://github.com/Bashlykov-Nikita)
