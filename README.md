@@ -38,8 +38,8 @@ In this project, historical data from companies included in well-known indices i
 ### How to use:
 To Fetch the .csv files use:
 ```sh
-portfolios_w_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/portfolios_data/${file_name}.csv?raw=true"
-backtest_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/backtest_portfolios_data/${file_name}?raw=true"
+portfolios_w_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/portfolios_data/${index_name}_portfolios.csv?raw=true"
+backtest_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/backtest_portfolios_data/${index_name}_backtest_portfolios.csv?raw=true"
 ```
 ### Example:
 ```python
