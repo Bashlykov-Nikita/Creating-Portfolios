@@ -11,7 +11,7 @@ import portfolios as p
 
 # * File for creating .csv files with portfolios weights and backtest
 
-covariance = ["Sample", "CCM", "Shrinage"]
+covariance = ["Sample", "CCM", "Shrinkage"]
 
 expected_return = ["Average", "EWA"]
 
