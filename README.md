@@ -47,7 +47,12 @@ import pandas as pd
 test_url = "https://github.com/Bashlykov-Nikita/Creating-Portfolio/blob/main/backtest_portfolios_data/DAX_backtest_portfolios.csv?raw=true"
 df = pd.read_csv(test_url, index_col=0)
 ```
-
+### 🚨Issues:
+- There is no function to collect historical company capitalization data, therefore there is no possibility of backtesting a Cap Weighted Portfolio.
+- Problems with fetching enough data for CAC 40.
+- BL Model is not in use.
+### Next Step!
+The next project [Outperforming-Indexes](https://github.com/Bashlykov-Nikita/Outperforming-Indexes) involves creating an interactive Streamlit app to visualize portfolio performance, risk profiles, and more.
 ### Data Sources:
 - [Companies Returns](https://github.com/Bashlykov-Nikita/Companies-Returns)
 
